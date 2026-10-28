@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using MilkBean.Installer.Services;
+using MilkBean.Installer.Views;
 
 namespace MilkBean.Installer;
 
@@ -17,9 +18,11 @@ public partial class MainWindow : Window
     private readonly IRainmeterService _rainmeter;
     private readonly INotesService _notes;
     private readonly IBackupService _backup;
+    private readonly IFolderIconService _folderIcons;
     private readonly ThemeApplyOrchestrator _apply;
     private readonly RestoreService _restore;
     private EnvironmentReport? _lastEnv;
+    private string? _lastThemeRoot;
 
     public MainWindow()
     {
@@ -32,8 +35,9 @@ public partial class MainWindow : Window
         _rainmeter = new RainmeterService(_env, _log);
         _notes = new NotesService(_log);
         _backup = new BackupService(_log, _wallpaper);
+        _folderIcons = new FolderIconService(_log);
         _apply = new ThemeApplyOrchestrator(_env, _manifest, _backup, _wallpaper, _rainmeter, _notes, _log);
-        _restore = new RestoreService(_backup, _wallpaper, _rainmeter, _log);
+        _restore = new RestoreService(_backup, _wallpaper, _rainmeter, _folderIcons, _log);
 
         _log.Info("Installer started");
     }
@@ -42,18 +46,10 @@ public partial class MainWindow : Window
     {
         switch (_step)
         {
-            case Step.Welcome:
-                GoToCheck();
-                break;
-            case Step.Check:
-                GoToOptions();
-                break;
-            case Step.Options:
-                _ = RunApplyAsync();
-                break;
-            case Step.Result:
-                Close();
-                break;
+            case Step.Welcome: GoToCheck(); break;
+            case Step.Check: GoToOptions(); break;
+            case Step.Options: _ = RunApplyAsync(); break;
+            case Step.Result: Close(); break;
         }
     }
 
@@ -62,38 +58,42 @@ public partial class MainWindow : Window
         if (_step == Step.Welcome)
         {
             MessageBox.Show(
-                "Install guide:\n\n" +
-                "1. Current wallpaper is backed up before apply.\n" +
-                "2. Clock/calendar need Rainmeter (you will be prompted).\n" +
-                "3. Notes are stored locally only.\n" +
-                "4. You can restore anytime.\n\n" +
-                "Log dir:\n" + AppPaths.LogsDir,
-                "Help",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                "Install guide:\n\n1. Wallpaper is backed up before apply.\n2. Clock/calendar need Rainmeter.\n3. Notes stay local only.\n4. You can restore anytime.\n\nLog dir:\n" + AppPaths.LogsDir,
+                "Help", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+        else if (_step == Step.Check) GoToCheck();
+        else if (_step == Step.Options) GoToCheck();
         else if (_step == Step.Result)
-        {
             MessageBox.Show("Log file:\n" + _log.GetLatestLogPath(), "Diagnostics");
-        }
-        else if (_step == Step.Check)
+    }
+
+    private void BtnFolderIcon_Click(object sender, RoutedEventArgs e)
+    {
+        var themeRoot = _lastThemeRoot ?? ResolveThemeRoot();
+        if (themeRoot == null)
         {
-            GoToCheck();
+            MessageBox.Show("Theme folder not found.", "Info");
+            return;
         }
-        else if (_step == Step.Options)
+        var win = new FolderIconWindow(_folderIcons, _log, themeRoot) { Owner = this };
+        win.ShowDialog();
+    }
+
+    private void BtnNotes_Click(object sender, RoutedEventArgs e)
+    {
+        if (!NotesLauncher.TryLaunch(_log))
         {
-            GoToCheck();
+            MessageBox.Show(
+                "MilkBeanNotes.exe not found.\nBuild src/MilkBean.Notes or place the exe next to the installer.",
+                "Open Notes");
         }
     }
 
     private async void BtnRestore_Click(object sender, RoutedEventArgs e)
     {
         var confirm = MessageBox.Show(
-            "Restore wallpaper and close MilkBean desktop widgets?",
-            "Restore",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
+            "Restore wallpaper, close MilkBean widgets, and restore recorded folder icons?",
+            "Restore", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (confirm != MessageBoxResult.Yes) return;
 
         BtnPrimary.IsEnabled = false;
@@ -131,41 +131,36 @@ public partial class MainWindow : Window
         sb.AppendLine($"Rainmeter: {(_lastEnv.RainmeterInstalled ? "Installed" : "Not found")}");
         if (_lastEnv.RainmeterSkinsPath != null)
             sb.AppendLine($"Skins: {_lastEnv.RainmeterSkinsPath}");
-
         if (_lastEnv.Warnings.Count > 0)
         {
-            sb.AppendLine();
-            sb.AppendLine("Warnings:");
+            sb.AppendLine(); sb.AppendLine("Warnings:");
             foreach (var w in _lastEnv.Warnings) sb.AppendLine("- " + w);
         }
         if (_lastEnv.BlockingIssues.Count > 0)
         {
-            sb.AppendLine();
-            sb.AppendLine("Blocking:");
+            sb.AppendLine(); sb.AppendLine("Blocking:");
             foreach (var b in _lastEnv.BlockingIssues) sb.AppendLine("- " + b);
         }
-
         CheckResultText.Text = sb.ToString();
         ShowPanel(Step.Check);
         BtnPrimary.Content = _lastEnv.BlockingIssues.Count > 0 ? "Exit" : "Next";
         BtnSecondary.Content = "Recheck";
         SubtitleText.Text = "Environment check";
         BtnRestore.Visibility = Visibility.Collapsed;
+        BtnFolderIcon.Visibility = Visibility.Collapsed;
+        BtnNotes.Visibility = Visibility.Collapsed;
     }
 
     private void GoToOptions()
     {
-        if (_lastEnv?.BlockingIssues.Count > 0)
-        {
-            Close();
-            return;
-        }
-
+        if (_lastEnv?.BlockingIssues.Count > 0) { Close(); return; }
         ShowPanel(Step.Options);
         BtnPrimary.Content = "Apply theme";
         BtnSecondary.Content = "Back";
         SubtitleText.Text = "Choose features";
         BtnRestore.Visibility = Visibility.Visible;
+        BtnFolderIcon.Visibility = Visibility.Visible;
+        BtnNotes.Visibility = Visibility.Collapsed;
     }
 
     private async Task RunApplyAsync()
@@ -176,15 +171,18 @@ public partial class MainWindow : Window
         BtnPrimary.IsEnabled = false;
         BtnRestore.IsEnabled = false;
         BtnSecondary.IsEnabled = false;
+        BtnFolderIcon.IsEnabled = false;
+        BtnNotes.IsEnabled = false;
         SubtitleText.Text = "Working";
 
         try
         {
             var themeRoot = ResolveThemeRoot();
+            _lastThemeRoot = themeRoot;
             if (themeRoot == null)
             {
                 ResultTitle.Text = "Theme resources not found";
-                ResultBody.Text = "Place themes/Desktop-01 next to the app, or build from the repo so theme files are copied to output.";
+                ResultBody.Text = "Place themes/Desktop-01 next to the app.";
                 BtnPrimary.Content = "Close";
                 BtnPrimary.IsEnabled = true;
                 return;
@@ -211,6 +209,11 @@ public partial class MainWindow : Window
                     sb.AppendLine($"- {kv.Key}: {kv.Value}");
                 foreach (var w in result.Warnings)
                     sb.AppendLine("! " + w);
+                if (options.ApplyNotes)
+                {
+                    var launched = NotesLauncher.TryLaunch(_log);
+                    sb.AppendLine(launched ? "- notes-ui: launched" : "- notes-ui: MilkBeanNotes.exe not found");
+                }
                 ResultBody.Text = sb.ToString();
             }
             else
@@ -219,8 +222,7 @@ public partial class MainWindow : Window
                 var sb = new StringBuilder();
                 foreach (var err in result.Errors) sb.AppendLine("- " + err);
                 foreach (var w in result.Warnings) sb.AppendLine("! " + w);
-                sb.AppendLine();
-                sb.AppendLine("Log: " + _log.GetLatestLogPath());
+                sb.AppendLine(); sb.AppendLine("Log: " + _log.GetLatestLogPath());
                 ResultBody.Text = sb.ToString();
             }
         }
@@ -236,9 +238,13 @@ public partial class MainWindow : Window
             BtnPrimary.IsEnabled = true;
             BtnRestore.IsEnabled = true;
             BtnSecondary.IsEnabled = true;
+            BtnFolderIcon.IsEnabled = true;
+            BtnNotes.IsEnabled = true;
             BtnSecondary.Content = "View log";
             BtnRestore.Visibility = Visibility.Visible;
-            SubtitleText.Text = "You can restore or close";
+            BtnFolderIcon.Visibility = Visibility.Visible;
+            BtnNotes.Visibility = Visibility.Visible;
+            SubtitleText.Text = "Set icons, open notes, or restore";
             _step = Step.Result;
         }
     }
@@ -261,12 +267,10 @@ public partial class MainWindow : Window
             Path.Combine(baseDir, "..", "..", "..", "..", "themes", "Desktop-01"),
             Path.Combine(baseDir, "..", "..", "..", "themes", "Desktop-01")
         };
-
         foreach (var c in candidates)
         {
             var full = Path.GetFullPath(c);
-            if (File.Exists(Path.Combine(full, "theme.json")))
-                return full;
+            if (File.Exists(Path.Combine(full, "theme.json"))) return full;
         }
         return null;
     }
