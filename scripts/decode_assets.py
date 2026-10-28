@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decode base64 theme assets into Wallpaper/ and Assets/."""
+"""Decode base64 theme assets into Wallpaper/ and Assets/ (if encoded/ is present)."""
 from __future__ import annotations
 
 import base64
@@ -13,15 +13,15 @@ MANIFEST = ROOT / "themes" / "Desktop-01" / "encoded" / "manifest.json"
 
 def main() -> int:
     if not MANIFEST.exists():
-        print("manifest not found:", MANIFEST)
-        return 1
+        print("No encoded/manifest.json — place JPG/PNG under Wallpaper/ and Assets/ directly.")
+        return 0
 
     items = json.loads(MANIFEST.read_text(encoding="utf-8"))
     for item in items:
         enc = ROOT / item["encoded"]
         target = ROOT / item["target"]
         if not enc.exists():
-            print("missing:", enc)
+            print("missing encoded file:", enc)
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
         data = base64.b64decode(enc.read_text(encoding="ascii"))
