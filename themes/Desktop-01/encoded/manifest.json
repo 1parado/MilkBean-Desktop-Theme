@@ -1,0 +1,22 @@
+[
+  {
+    "target": "themes/Desktop-01/Wallpaper/milkbean-main-studio.jpg",
+    "encoded": "themes/Desktop-01/encoded/milkbean-main-studio.jpg.b64",
+    "bytes": 184812
+  },
+  {
+    "target": "themes/Desktop-01/Wallpaper/milkbean-main-desk.jpg",
+    "encoded": "themes/Desktop-01/encoded/milkbean-main-desk.jpg.b64",
+    "bytes": 176890
+  },
+  {
+    "target": "themes/Desktop-01/Wallpaper/milkbean-main-minimal.jpg",
+    "encoded": "themes/Desktop-01/encoded/milkbean-main-minimal.jpg.b64",
+    "bytes": 88714
+  },
+  {
+    "target": "themes/Desktop-01/Assets/milkbean-character.png",
+    "encoded": "themes/Desktop-01/encoded/milkbean-character.png.b64",
+    "bytes": 147826
+  }
+]
