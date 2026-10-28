@@ -11,10 +11,18 @@
     <Version>1.0.0</Version>
     <Authors>MilkBean</Authors>
     <Description>奶豆桌面主题安装器</Description>
+    <Product>MilkBean Desktop Theme</Product>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\themes\Desktop-01\**\*">
+      <Link>themes\Desktop-01\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
