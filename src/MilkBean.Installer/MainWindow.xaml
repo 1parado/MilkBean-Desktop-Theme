@@ -1,0 +1,80 @@
+<Window x:Class="MilkBean.Installer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="奶豆桌面主题 · 安装器"
+        Height="560" Width="720"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        FontFamily="Segoe UI">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="奶豆桌面主题 01 · 日常陪伴版"
+                       FontSize="22" FontWeight="SemiBold"
+                       Foreground="{StaticResource TextBrush}"/>
+            <TextBlock x:Name="SubtitleText"
+                       Text="欢迎使用 · 一键美化你的 Windows 桌面"
+                       FontSize="13" Margin="0,6,0,0"
+                       Foreground="{StaticResource MutedBrush}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="{StaticResource CardBrush}"
+                CornerRadius="12" Padding="28">
+            <Grid>
+                <StackPanel x:Name="PanelWelcome" Visibility="Visible">
+                    <TextBlock Text="你好，我是奶豆"
+                               FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}"/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,12,0,0" LineHeight="22"
+                               Foreground="{StaticResource TextBrush}"
+                               Text="这套主题会帮你设置壁纸、桌面时钟、日历和便签，并尽量保留恢复原状的能力。安装过程中不会静默修改你的系统，需要你确认的步骤都会明确提示。"/>
+                    <TextBlock Margin="0,16,0,0" Foreground="{StaticResource MutedBrush}" FontSize="12"
+                               Text="MVP 1.0 · Windows 10/11 x64 · 本地运行，不上传数据"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelCheck" Visibility="Collapsed">
+                    <TextBlock Text="环境检查" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}"/>
+                    <TextBlock x:Name="CheckResultText" TextWrapping="Wrap" Margin="0,16,0,0"
+                               LineHeight="22" Foreground="{StaticResource TextBrush}"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelOptions" Visibility="Collapsed">
+                    <TextBlock Text="安装选项" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}"/>
+                    <CheckBox x:Name="OptWallpaper" Content="应用壁纸" IsChecked="True" Margin="0,16,0,8"
+                              Foreground="{StaticResource TextBrush}"/>
+                    <CheckBox x:Name="OptClock" Content="启用时钟" IsChecked="True" Margin="0,0,0,8"
+                              Foreground="{StaticResource TextBrush}"/>
+                    <CheckBox x:Name="OptCalendar" Content="启用日历" IsChecked="True" Margin="0,0,0,8"
+                              Foreground="{StaticResource TextBrush}"/>
+                    <CheckBox x:Name="OptNotes" Content="启用便签" IsChecked="True" Margin="0,0,0,8"
+                              Foreground="{StaticResource TextBrush}"/>
+                    <TextBlock Margin="0,12,0,0" FontSize="12" Foreground="{StaticResource MutedBrush}"
+                               TextWrapping="Wrap"
+                               Text="仅修改你勾选的项目。应用前会自动备份，可随时一键恢复。"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelResult" Visibility="Collapsed">
+                    <TextBlock x:Name="ResultTitle" Text="正在应用…" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}"/>
+                    <TextBlock x:Name="ResultBody" TextWrapping="Wrap" Margin="0,16,0,0"
+                               LineHeight="22" Foreground="{StaticResource TextBrush}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button x:Name="BtnRestore" Content="恢复原状" Style="{StaticResource SecondaryButton}"
+                    Margin="0,0,12,0" Click="BtnRestore_Click" Visibility="Collapsed"/>
+            <Button x:Name="BtnSecondary" Content="查看说明" Style="{StaticResource SecondaryButton}"
+                    Margin="0,0,12,0" Click="BtnSecondary_Click"/>
+            <Button x:Name="BtnPrimary" Content="开始安装" Click="BtnPrimary_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
