@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "themeId": "milkbean-desktop-01",
+  "name": "奶豆桌面主题 01 · 日常陪伴版",
+  "version": "1.0.0",
+  "description": "以奶豆 3D 形象为核心的治愈系桌面美化主题，包含壁纸、时钟、日历与便签。",
+  "platform": {
+    "os": "windows",
+    "architecture": "x64",
+    "minOsVersion": "10.0"
+  },
+  "wallpaper": {
+    "default": "Wallpaper/milkbean-main-1920x1080.jpg",
+    "variants": [
+      "Wallpaper/milkbean-main-1920x1080.jpg",
+      "Wallpaper/milkbean-main-2560x1440.jpg",
+      "Wallpaper/milkbean-main-3840x2160.jpg"
+    ],
+    "fitMode": "fill"
+  },
+  "widgets": [
+    {
+      "id": "milkbean-clock",
+      "type": "rainmeter",
+      "skin": "MilkBean/Clock/Clock.ini",
+      "enabledByDefault": true,
+      "position": {
+        "anchor": "top-right",
+        "offsetX": 40,
+        "offsetY": 40
+      }
+    },
+    {
+      "id": "milkbean-calendar",
+      "type": "rainmeter",
+      "skin": "MilkBean/Calendar/Calendar.ini",
+      "enabledByDefault": true,
+      "position": {
+        "anchor": "top-right",
+        "offsetX": 40,
+        "offsetY": 160
+      }
+    },
+    {
+      "id": "milkbean-notes",
+      "type": "notes",
+      "enabledByDefault": true
+    }
+  ],
+  "icons": [
+    {
+      "id": "folder-default",
+      "path": "Icons/folder-default.ico",
+      "label": "默认文件夹"
+    },
+    {
+      "id": "folder-work",
+      "path": "Icons/folder-work.ico",
+      "label": "工作文件夹"
+    },
+    {
+      "id": "folder-study",
+      "path": "Icons/folder-study.ico",
+      "label": "学习文件夹"
+    }
+  ],
+  "assets": {
+    "character": "Assets/milkbean-character.png",
+    "preview": "Assets/milkbean-character.png"
+  },
+  "colors": {
+    "primary": "#F5D76E",
+    "background": "#FFF8E7",
+    "text": "#5C4B3A",
+    "accent": "#E8B86D"
+  }
+}
