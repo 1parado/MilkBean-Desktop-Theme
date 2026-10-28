@@ -61,7 +61,7 @@
                 </StackPanel>
 
                 <StackPanel x:Name="PanelResult" Visibility="Collapsed">
-                    <TextBlock x:Name="ResultTitle" Text="正在应用…" FontSize="18" FontWeight="SemiBold"
+                    <TextBlock x:Name="ResultTitle" Text="正在应用\u2026" FontSize="18" FontWeight="SemiBold"
                                Foreground="{StaticResource TextBrush}"/>
                     <TextBlock x:Name="ResultBody" TextWrapping="Wrap" Margin="0,16,0,0"
                                LineHeight="22" Foreground="{StaticResource TextBrush}"/>
@@ -70,6 +70,10 @@
         </Border>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button x:Name="BtnFolderIcon" Content="文件夹图标" Style="{StaticResource SecondaryButton}"
+                    Margin="0,0,12,0" Click="BtnFolderIcon_Click" Visibility="Collapsed"/>
+            <Button x:Name="BtnNotes" Content="打开便签" Style="{StaticResource SecondaryButton}"
+                    Margin="0,0,12,0" Click="BtnNotes_Click" Visibility="Collapsed"/>
             <Button x:Name="BtnRestore" Content="恢复原状" Style="{StaticResource SecondaryButton}"
                     Margin="0,0,12,0" Click="BtnRestore_Click" Visibility="Collapsed"/>
             <Button x:Name="BtnSecondary" Content="查看说明" Style="{StaticResource SecondaryButton}"
